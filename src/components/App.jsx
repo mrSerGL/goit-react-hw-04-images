@@ -15,10 +15,18 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [showBtn, setShowBtn] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [largeImageURL, setLargeImageURLl] = useState('');
+  const [largeImageURL, setLargeImageURL] = useState('');
 
   useEffect(() => {
-    getImages(searchQuery);
+    try {
+      setIsLoading(true);
+      getImages(searchQuery);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      console.log('useEffect says:', error.message);
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
@@ -47,16 +55,11 @@ export default function App() {
         }
         if (response.hits.length === 12) {
           setShowBtn(true);
-          }
+        }
         if (response.hits.length === 0) {
           Notiflix.Notify.failure('No matches found!');
         }
-
-
-       
       });
-     
-      
     } catch (error) {
       setIsLoading(false);
       console.log('onSubmit say:', error.message);
@@ -82,23 +85,32 @@ export default function App() {
       galleryService.getImages(searchQuery).then(response => {
         setFirstPage(prevState => [...prevState, ...response.hits]);
         setIsLoading(false);
-        scrollToDown();
+ 
       });
     } catch (error) {
       setIsLoading(false);
-      console.log('onNextPage say:', error.message);
-    }
+      console.log('onNextPage says:', error.message);
+    } 
   };
+
+  useEffect(() => {
+    if (page > 1) {
+      scrollToDown();
+    }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [firstPage]);
 
   const onClickImage = url => {
     setShowModal(true);
-    setLargeImageURLl(url);
+    setLargeImageURL(url);
   };
 
   const onModalClose = () => {
     setShowModal(false);
-    setLargeImageURLl('');
+    setLargeImageURL('');
   };
+
+ 
 
   return (
     <div>
