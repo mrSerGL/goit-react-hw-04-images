@@ -28,4 +28,30 @@
   padding-bottom: 24px;
 }
 
+.upButton {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+
+  display: block;
+  width: 32px;
+  height: 32px;
+
+  margin: 0;
+
+
+  border: none;
+  background-color: transparent;
+
+
+
+  opacity: .5;
+
+
+  background-image: url("../images/arrowup.svg");
+  background-size: contain;
+
+  cursor: pointer;
+}
+
  

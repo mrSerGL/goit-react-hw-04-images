@@ -53,7 +53,7 @@ export default function App() {
         if (response.hits.length < 12) {
           setShowBtn(false);
         }
-        if (response.hits.length === 12) {
+        if (response.hits.length > 12) {
           setShowBtn(true);
         }
         if (response.hits.length === 0) {
@@ -118,13 +118,15 @@ export default function App() {
 
   return (
     <div>
-      <Searchbar onSubmit={onSubmit} />
+      <Searchbar onSubmit={onSubmit} id="top"/>
       <ImageGallery firstPage={cachedImages} onClickImage={onClickImage} />
       {isLoading && <Loader />}
       {showBtn && <Button onNextPage={onNextPage} />}
       {showModal && (
         <Modal largeImageURL={largeImageURL} onModalClose={onModalClose} />
       )}
+    
+      <a href="#top"><button className="upButton"></button></a>
     </div>
   );
 }
