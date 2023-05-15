@@ -50,7 +50,7 @@ export default function App() {
         setFirstPage(response.hits);
         setIsLoading(false);
 
-        if (response.hits.length < 12) {
+        if (response.hits.length <= 12) {
           setShowBtn(false);
         }
         if (response.hits.length > 12) {
