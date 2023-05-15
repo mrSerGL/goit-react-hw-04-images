@@ -10,17 +10,18 @@ class ImageGallery extends Component {
     if (!firstPage) return null;
   
     return (
-      <>
+      <ul className={css.imageGallery }>
         {this.props.firstPage.map(({ id, webformatURL, tags, largeImageURL }) => (
           <li className={css.galleryItem} key={id}>
             <img 
+            className={css.imageGalleryItemImage}
             onClick={() => onClickImage(largeImageURL)}
             src={webformatURL} 
             alt={tags}
             largeimage={largeImageURL} />
           </li>
         ))}
-      </>
+      </ul>
     );
   }
 }

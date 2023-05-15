@@ -6,7 +6,7 @@ import ImageGallery from './ImageGallery';
 import Button from './Button';
 import Loader from './Loader';
 import Modal from './Modal';
-import css from './App.module.css';
+import './App.css';
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,7 +53,6 @@ export default function App() {
   const onNextPage = () => {
     setPage(prevState => prevState + 1);
     setIsLoading(true);
-    console.log(page);
 
     const galleryService = new GalleryService();
     galleryService.name = searchQuery;
@@ -81,11 +80,12 @@ export default function App() {
   };
 
   return (
-    <div className={css.container}>
+    // <div className={css.container}>
+    <div>
       <Searchbar onSubmit={onSubmit} />
-      <ul className={css.App}>
+      {/* <ul className={css.App}> */}
         <ImageGallery firstPage={firstPage} onClickImage={onClickImage} />
-      </ul>
+      {/* </ul> */}
       {isLoading && <Loader />}
       {showBtn && <Button onNextPage={onNextPage} />}
       {showModal && (

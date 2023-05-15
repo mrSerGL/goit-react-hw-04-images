@@ -5,7 +5,6 @@ const API_KEY = '34696430-6b2d422f51ccceb24da3a2678';
 
 const searchParams = new URLSearchParams({
   key: API_KEY,
-  // q: '',
   image_type: 'photo',
   orientation: 'horisontal',
   safesearch: 'false',
