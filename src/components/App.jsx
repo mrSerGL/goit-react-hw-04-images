@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Notiflix from 'notiflix';
 import Searchbar from './Searchbar';
 import GalleryService from '../services/GalleryService';
@@ -17,15 +17,24 @@ export default function App() {
   const [showModal, setShowModal] = useState(false);
   const [largeImageURL, setLargeImageURLl] = useState('');
 
+  useEffect(() => {
+    getImages(searchQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
+
   const onSubmit = searchQuery => {
     if (searchQuery === '') {
       Notiflix.Notify.info('You cannot search by empty field, try again.');
       return;
     }
 
+    console.log(searchQuery);
+
     setSearchQuery(searchQuery);
     setIsLoading(true);
+  };
 
+  const getImages = searchQuery => {
     const galleryService = new GalleryService();
     galleryService.name = searchQuery;
 
@@ -80,12 +89,9 @@ export default function App() {
   };
 
   return (
-    // <div className={css.container}>
     <div>
       <Searchbar onSubmit={onSubmit} />
-      {/* <ul className={css.App}> */}
-        <ImageGallery firstPage={firstPage} onClickImage={onClickImage} />
-      {/* </ul> */}
+      <ImageGallery firstPage={firstPage} onClickImage={onClickImage} />
       {isLoading && <Loader />}
       {showBtn && <Button onNextPage={onNextPage} />}
       {showModal && (
