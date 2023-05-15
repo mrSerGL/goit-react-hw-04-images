@@ -28,13 +28,12 @@ export default function App() {
       return;
     }
 
-    console.log(searchQuery);
-
     setSearchQuery(searchQuery);
     setIsLoading(true);
   };
 
   const getImages = searchQuery => {
+    setIsLoading(true);
     const galleryService = new GalleryService();
     galleryService.name = searchQuery;
 
@@ -48,15 +47,27 @@ export default function App() {
         }
         if (response.hits.length === 12) {
           setShowBtn(true);
-        }
+          }
         if (response.hits.length === 0) {
           Notiflix.Notify.failure('No matches found!');
         }
+
+
+       
       });
+     
+      
     } catch (error) {
       setIsLoading(false);
       console.log('onSubmit say:', error.message);
     }
+  };
+
+  const scrollToDown = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
   };
 
   const onNextPage = () => {
@@ -71,6 +82,7 @@ export default function App() {
       galleryService.getImages(searchQuery).then(response => {
         setFirstPage(prevState => [...prevState, ...response.hits]);
         setIsLoading(false);
+        scrollToDown();
       });
     } catch (error) {
       setIsLoading(false);
