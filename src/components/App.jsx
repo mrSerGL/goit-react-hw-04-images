@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useState } from 'react';
 import Notiflix from 'notiflix';
 import Searchbar from './Searchbar';
 import GalleryService from '../services/GalleryService';
@@ -8,102 +8,89 @@ import Loader from './Loader';
 import Modal from './Modal';
 import css from './App.module.css';
 
-export default class App extends Component {
-  state = {
-    searchQuery: '',
-    firstPage: [],
-    page: 1,
-    isLoading: false,
-    showBtn: false,
-    showModal: false,
-    largeImageURL: '',
-  };
+export default function App() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [firstPage, setFirstPage] = useState([]);
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showBtn, setShowBtn] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [largeImageURL, setLargeImageURLl] = useState('');
 
-  onSubmit = searchQuery => {
+  const onSubmit = searchQuery => {
     if (searchQuery === '') {
       Notiflix.Notify.info('You cannot search by empty field, try again.');
       return;
     }
 
-    this.setState({
-      searchQuery: searchQuery,
-      isLoading: true,
-    });
+    setSearchQuery(searchQuery);
+    setIsLoading(true);
 
     const galleryService = new GalleryService();
     galleryService.name = searchQuery;
 
     try {
-      galleryService.getImages(this.state.searchQuery).then(response => {
-        this.setState({
-          firstPage: response.hits,
-          isLoading: false,
-        });
+      galleryService.getImages(searchQuery).then(response => {
+        setFirstPage(response.hits);
+        setIsLoading(false);
 
         if (response.hits.length < 12) {
-          this.setState({ showBtn: false });
+          setShowBtn(false);
         }
         if (response.hits.length === 12) {
-          this.setState({ showBtn: true });
+          setShowBtn(true);
         }
         if (response.hits.length === 0) {
           Notiflix.Notify.failure('No matches found!');
         }
       });
     } catch (error) {
+      setIsLoading(false);
       console.log('onSubmit say:', error.message);
     }
   };
 
-  onNextPage = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-      isLoading: true,
-    }));
-  
+  const onNextPage = () => {
+    setPage(prevState => prevState + 1);
+    setIsLoading(true);
+    console.log(page);
+
     const galleryService = new GalleryService();
-    galleryService.name = this.state.searchQuery;
-    galleryService.page = this.state.page + 1;
-  
+    galleryService.name = searchQuery;
+    galleryService.page = page + 1;
+
     try {
-      galleryService.getImages(this.state.searchQuery).then(response => {
-        this.setState(prevState => ({
-          firstPage: [...prevState.firstPage, ...response.hits],
-          isLoading: false,
-        }));
+      galleryService.getImages(searchQuery).then(response => {
+        setFirstPage(prevState => [...prevState, ...response.hits]);
+        setIsLoading(false);
       });
     } catch (error) {
+      setIsLoading(false);
       console.log('onNextPage say:', error.message);
     }
   };
 
-  onClickImage = url => {
-    this.setState({ showModal: true, largeImageURL: url });
+  const onClickImage = url => {
+    setShowModal(true);
+    setLargeImageURLl(url);
   };
 
-  onModalClose = () => {
-    this.setState({ showModal: false, largeImageURL: '' });
+  const onModalClose = () => {
+    setShowModal(false);
+    setLargeImageURLl('');
   };
 
-  render() {
-    return (
-      <div className={css.container}>
-        <Searchbar onSubmit={this.onSubmit} />
-        <ul className={css.App}>
-          <ImageGallery
-            firstPage={this.state.firstPage}
-            onClickImage={this.onClickImage}
-          />
-        </ul>
-        {this.state.isLoading && <Loader />}
-        {this.state.showBtn && <Button onNextPage={this.onNextPage} />}
-        {this.state.showModal && (
-          <Modal
-            largeImageURL={this.state.largeImageURL}
-            onModalClose={this.onModalClose}
-          />
-        )}
-      </div>
-    );
-  }
+  return (
+    <div className={css.container}>
+      <Searchbar onSubmit={onSubmit} />
+      <ul className={css.App}>
+        <ImageGallery firstPage={firstPage} onClickImage={onClickImage} />
+      </ul>
+      {isLoading && <Loader />}
+      {showBtn && <Button onNextPage={onNextPage} />}
+      {showModal && (
+        <Modal largeImageURL={largeImageURL} onModalClose={onModalClose} />
+      )}
+    </div>
+  );
 }
