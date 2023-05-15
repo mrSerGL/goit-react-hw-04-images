@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Notiflix from 'notiflix';
 import Searchbar from './Searchbar';
 import GalleryService from '../services/GalleryService';
@@ -66,13 +66,6 @@ export default function App() {
     }
   };
 
-  const scrollToDown = () => {
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: 'smooth',
-    });
-  };
-
   const onNextPage = () => {
     setPage(prevState => prevState + 1);
     setIsLoading(true);
@@ -85,20 +78,33 @@ export default function App() {
       galleryService.getImages(searchQuery).then(response => {
         setFirstPage(prevState => [...prevState, ...response.hits]);
         setIsLoading(false);
- 
       });
     } catch (error) {
       setIsLoading(false);
       console.log('onNextPage says:', error.message);
-    } 
+    }
   };
 
+  const scrollToDown = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
+  };
+
+  // if firstPage fhanged - scrollToDown 
   useEffect(() => {
     if (page > 1) {
       scrollToDown();
     }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firstPage]);
+
+    // Используем useMemo для кэширования изображений
+    const cachedImages = useMemo(() => {
+      // Возвращаем кэшированный результат или пустой массив, если нет кэша
+      return firstPage.length > 0 ? firstPage : [];
+    }, [firstPage]);
 
   const onClickImage = url => {
     setShowModal(true);
@@ -110,12 +116,10 @@ export default function App() {
     setLargeImageURL('');
   };
 
- 
-
   return (
     <div>
       <Searchbar onSubmit={onSubmit} />
-      <ImageGallery firstPage={firstPage} onClickImage={onClickImage} />
+      <ImageGallery firstPage={cachedImages} onClickImage={onClickImage} />
       {isLoading && <Loader />}
       {showBtn && <Button onNextPage={onNextPage} />}
       {showModal && (
