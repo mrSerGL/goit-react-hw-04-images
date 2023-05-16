@@ -3,7 +3,7 @@ import Notiflix from 'notiflix';
 import Searchbar from './Searchbar';
 import FetchImages from '../services/FetchImages';
 import ImageGallery from './ImageGallery';
-// import Button from './Button';
+import Button from './Button';
 import Loader from './Loader';
 import Modal from './Modal';
 import './App.css';
@@ -17,19 +17,7 @@ export default function App() {
   const [showModal, setShowModal] = useState(false);
   const [largeImageURL, setLargeImageURL] = useState('');
 
-  const onSubmit = searchQuery => {
-    if (searchQuery === '') {
-      Notiflix.Notify.info('You cannot search by empty field, try again.');
-      return;
-    }
-    setSearchQuery(searchQuery);
-  };
-
   useEffect(() => {
-    if (searchQuery === '') {
-      return;
-    }
-
     try {
       setIsLoading(true);
       getImages(searchQuery);
@@ -42,42 +30,17 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
-  useEffect(() => {
+  const onSubmit = searchQuery => {
     if (searchQuery === '') {
+      Notiflix.Notify.info('You cannot search by empty field, try again.');
       return;
     }
 
+    setPage(page => page + 1);
+
+    setSearchQuery(searchQuery);
     setIsLoading(true);
-    console.log(page);
-
-    try {
-      FetchImages(searchQuery, page).then(response => {
-        setFirstPage(prevState => [...prevState, ...response.hits]);
-        setIsLoading(false);
-      });
-    } catch (error) {
-      setIsLoading(false);
-      console.log('onNextPage says:', error.message);
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
-
-  useEffect(() => {
-    // if firstPage fhcanged - scrollToDown
-    if (page > 1) {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: 'smooth',
-      });
-    }
-    // if firstPage.length >=12 - showBtn
-    if (firstPage >= 12) {
-      setShowBtn(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firstPage]);
-  
+  };
 
   const getImages = searchQuery => {
     setIsLoading(true);
@@ -103,6 +66,45 @@ export default function App() {
     }
   };
 
+  const onNextPage = () => {
+    // setPage(prevState => prevState + 1);
+    setPage(page => page + 1);
+    setIsLoading(true);
+    console.log(page);
+
+    try {
+      FetchImages(searchQuery, page).then(response => {
+        setFirstPage(prevState => [...prevState, ...response.hits]);
+        setIsLoading(false);
+      });
+    } catch (error) {
+      setIsLoading(false);
+      console.log('onNextPage says:', error.message);
+    }
+ 
+  };
+
+  const scrollToDown = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
+  };
+
+  // if firstPage fhanged - scrollToDown 
+  useEffect(() => {
+    if (page > 1) {
+      scrollToDown();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [firstPage]);
+
+    // Используем useMemo для кэширования изображений
+    const cachedImages = useMemo(() => {
+      // Возвращаем кэшированный результат или пустой массив, если нет кэша
+      return firstPage.length > 0 ? firstPage : [];
+    }, [firstPage]);
+
   const onClickImage = url => {
     setShowModal(true);
     setLargeImageURL(url);
@@ -113,34 +115,19 @@ export default function App() {
     setLargeImageURL('');
   };
 
-  // Используем useMemo для кэширования изображений
-
-  const cachedImages = useMemo(() => {
-    return firstPage.length > 0 ? firstPage : [];
-  }, [firstPage]);
-
   return (
     <div>
-      <Searchbar onSubmit={onSubmit} id="top" />
+      <Searchbar onSubmit={onSubmit} id="top"/>
       <ImageGallery firstPage={cachedImages} onClickImage={onClickImage} />
       {isLoading && <Loader />}
-      {showBtn && (
-        <button
-          type="submit"
-          className="Button"
-          onClick={() => setPage(page => page + 1)}
-        >
-          Load more
-        </button>
-      )}
-
+      {/* {showBtn && <Button onNextPage={onNextPage} />} 
+      */}
+            {showBtn && <Button onNextPage={onNextPage} />}
       {showModal && (
         <Modal largeImageURL={largeImageURL} onModalClose={onModalClose} />
       )}
-
-      <a href="#top">
-        <button className="upButton"></button>
-      </a>
+    
+      <a href="#top"><button className="upButton"></button></a>
     </div>
   );
 }

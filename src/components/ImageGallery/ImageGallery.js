@@ -1,17 +1,14 @@
-import React, { Component } from 'react';
+
 import PropTypes from 'prop-types';
 import css from './ImageGallery.module.css';
 
-class ImageGallery extends Component {
-  state = {};
+const ImageGallery = ({firstPage,onClickImage}) => {
 
-  render() {
-    const { firstPage, onClickImage } = this.props;
-    if (!firstPage) return null;
+    if (!firstPage){ return null};
   
     return (
       <ul className={css.imageGallery }>
-        {this.props.firstPage.map(({ id, webformatURL, tags, largeImageURL }) => (
+        {firstPage.map(({ id, webformatURL, tags, largeImageURL }) => (
           <li className={css.galleryItem} key={id}>
             <img 
             className={css.imageGalleryItemImage}
@@ -23,11 +20,11 @@ class ImageGallery extends Component {
         ))}
       </ul>
     );
-  }
+  // }
 }
 
 ImageGallery.propTypes = {
-  onClickImage: PropTypes.func,
+  onClickImage: PropTypes.func.isRequired,
   firstPage: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number.isRequired,
