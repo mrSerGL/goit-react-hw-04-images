@@ -18,11 +18,11 @@ export default function App() {
   const [largeImageURL, setLargeImageURL] = useState('');
 
   const onSubmit = searchQuery => {
-    if (searchQuery === '') {
-      Notiflix.Notify.info('You cannot search by empty field, try again.');
-      return;
+    if (searchQuery !== '') {
+      setPage(1);
+      setFirstPage([]);
+      setSearchQuery(searchQuery);
     }
-    setSearchQuery(searchQuery);
   };
 
   useEffect(() => {
@@ -30,61 +30,11 @@ export default function App() {
       return;
     }
 
-    try {
-      setIsLoading(true);
-      getImages(searchQuery);
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      console.log('useEffect says:', error.message);
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
-
-  useEffect(() => {
-    if (searchQuery === '') {
-      return;
-    }
-
     setIsLoading(true);
-    console.log(page);
 
     try {
       FetchImages(searchQuery, page).then(response => {
         setFirstPage(prevState => [...prevState, ...response.hits]);
-        setIsLoading(false);
-      });
-    } catch (error) {
-      setIsLoading(false);
-      console.log('onNextPage says:', error.message);
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
-
-  useEffect(() => {
-    // if firstPage fhcanged - scrollToDown
-    if (page > 1) {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: 'smooth',
-      });
-    }
-    // if firstPage.length >=12 - showBtn
-    if (firstPage >= 12) {
-      setShowBtn(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firstPage]);
-  
-
-  const getImages = searchQuery => {
-    setIsLoading(true);
-
-    try {
-      FetchImages(searchQuery, page).then(response => {
-        setFirstPage(response.hits);
         setIsLoading(false);
 
         if (response.hits.length < 12) {
@@ -96,12 +46,30 @@ export default function App() {
         if (response.hits.length === 0) {
           Notiflix.Notify.failure('No matches found!');
         }
+        setIsLoading(false);
       });
     } catch (error) {
       setIsLoading(false);
       console.log('onSubmit say:', error.message);
     }
-  };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, page]);
+
+  useEffect(() => {
+    // if firstPage changed - scrollToDown
+    if (page > 1) {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+    // if firstPage.length >= 12 - showBtn
+    if (firstPage.length >= 12) {
+      setShowBtn(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [firstPage]);
 
   const onClickImage = url => {
     setShowModal(true);
@@ -113,7 +81,7 @@ export default function App() {
     setLargeImageURL('');
   };
 
-  // Используем useMemo для кэширования изображений
+  // Use useMemo to cache the images
 
   const cachedImages = useMemo(() => {
     return firstPage.length > 0 ? firstPage : [];

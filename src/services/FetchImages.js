@@ -13,6 +13,8 @@ const searchParams = new URLSearchParams({
 
 const FetchImages = async  (searchQuery, page) => {
 
+  
+
     const url = `${BASE_URL}q=${searchQuery}&page=${page}&${searchParams}`;
 
     const response = await axios.get(url);

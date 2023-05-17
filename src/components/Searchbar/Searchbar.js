@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Notiflix from 'notiflix';
 import css from './Searchbar.module.css';
 
 function Searchbar({ onSubmit }) {
@@ -8,7 +9,7 @@ function Searchbar({ onSubmit }) {
     let inputValue = event.target.value.trim();
 
     if (inputValue.length === 0) {
-      alert('Enter request text!');
+      Notiflix.Notify.info('You cannot search by empty field, try again.');
       return;
     }
     setSearchQuery(inputValue);
@@ -19,14 +20,16 @@ function Searchbar({ onSubmit }) {
     onSubmit(searchQuery);
   };
 
-  // render() {
   return (
     <>
       <header className={css.searchBar}>
         <form className={css.form} onSubmit={handleSubmit}>
-          <button type="submit" className={css.button} onClick={onSubmit}>
+        <button type="submit" className={css.button}>
             <span className={css.buttonlabel}></span>
           </button>
+          {/* <button type="submit" className={css.button} onClick={onSubmit}>
+            <span className={css.buttonlabel}></span>
+          </button> */}
 
           <input
             className={css.input}
@@ -45,6 +48,6 @@ function Searchbar({ onSubmit }) {
       </header>
     </>
   );
-  // }
+
 }
 export default Searchbar;
